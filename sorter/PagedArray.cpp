@@ -30,13 +30,12 @@ public:
             paginas[i] = new int[intxPagina];
         }
 
-        for (size_t i = 0; i < MAX_PAGINAS; i++)
-        { //Marca las paginas vacias
+        for (size_t i = 0; i < MAX_PAGINAS; i++){ //Marca los paginas vacias
             paginasCargadas[i] = -1;
         }
 
-        for (size_t i = 0; i < MAX_PAGINAS; i++)
-        { //Ninguna pagina se ha usado todavia
+        for (size_t i = 0; i < MAX_PAGINAS; i++){ 
+            //Ninguna pagina se ha usado todavia
             ultimoUso[i] = 0;
         }
     }
@@ -45,12 +44,39 @@ public:
 
     // Sobrecarga del operador [] si se escibre arr[indice] es esto
     int& operator[](size_t indice){
+
         //que pag y posicion dentro
         size_t numPagina = calcularNumPagina(indice);
         size_t offset = calcularOffsetEnPagina(indice);
-
-        return paginas[0][0]; //Esto es por este commit nada mas, temporal
         
+        int slot = -1; //como decir ninguno de momento
+
+        for(size_t i = 0; i < MAX_PAGINAS; i++)
+        {
+            if (paginasCargadas[i] == numPagina){ //si el slot esta vacio
+                slot = i;
+                break; 
+            }
+        }
+    if(slot != -1)
+    {
+        pageHits++;
+
+    }else {
+
+        pageFaults++;
+        cargarPagina(numPagina); //desde el disco
+
+        //volver a buscar el slot donde se cargo
+        for(size_t i = 0; i <MAX_PAGINAS; i++ ){
+            if (paginasCargadas[i] == numPagina){
+                slot = i;
+                break;
+            }
+        }
+    }
+        return paginas[slot][offset]; //Aun temporal 
+
     }
 
     // Métodos para obtener estadísticas
@@ -69,7 +95,29 @@ public:
 
 private:
 
-    void cargarPagina(size_t numPagina); // Ambos desde el disco
+    void cargarPagina(size_t numPagina){
+
+        int slot = -1;
+        for(size_t i = 0; i <MAX_PAGINAS; i++){
+            if (paginasCargadas[i]== -1){
+                slot = i;
+                break;
+            }
+        }
+        if (slot == -1){
+            //remplazo
+        }
+        else{
+            //Calcular donde empieza la página.
+            size_t byteInicial = numPagina * intxPagina * sizeof(int);
+            archivo.seekg(byteInicial, std::ios::beg);
+
+            archivo.read((char*)paginas[slot],intxPagina* sizeof(int));
+            paginasCargadas[slot] = numPagina;
+        }
+    } 
+
+    // Ambos desde el disco
     void guardarPagina(size_t numPagina); 
     void reemplazarPagina(); // LRU
 
