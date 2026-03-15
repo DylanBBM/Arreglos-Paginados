@@ -9,8 +9,38 @@ class PagedArray {
     //Todo lo que sorter ocupa
 public:
 
-    //Esto para no copiar el string al pasar el parametro
-    PagedArray(const string& rutaArchivo, size_t tamPagina);
+    PagedArray(const string& rutaArchivo, size_t tamPagina){
+
+        this->rutaArchivo = rutaArchivo;
+        this->tamPagina = tamPagina;
+        archivo.open(rutaArchivo, std::ios::in | std::ios::out | std::ios::binary);
+
+        archivo.seekg(0, std::ios::end); 
+        size_t sizeBytes = archivo.tellg();  // Donde estoy en bytes
+        archivo.seekg(0, std::ios::beg); 
+
+        totalElementos = sizeBytes / sizeof(int);
+        intxPagina = tamPagina / sizeof(int);
+        pageHits = 0;
+        pageFaults = 0;
+
+        //Para las paginas
+        for(size_t i = 0 ; i <MAX_PAGINAS; i++)
+        { //Crear
+            paginas[i] = new int[intxPagina];
+        }
+
+        for (size_t i = 0; i < MAX_PAGINAS; i++)
+        { //Marca las paginas vacias
+            paginasCargadas[i] = -1;
+        }
+
+        for (size_t i = 0; i < MAX_PAGINAS; i++)
+        { //Ninguna pagina se ha usado todavia
+            ultimoUso[i] = 0;
+        }
+    }
+
     ~PagedArray();
 
     // Sobrecarga del operador [] si alguien escribe arr[] es esto
@@ -31,6 +61,7 @@ public:
     }
 
 private:
+
     void cargarPagina(size_t numPagina); // Ambos desde el disco
     void guardarPagina(size_t numPagina); 
     void reemplazarPagina(); // LRU
@@ -44,9 +75,11 @@ private:
         return indice % tamPagina; 
     }
 
+    std::fstream archivo;
     string rutaArchivo;         
     size_t tamPagina;          
     size_t totalElementos;     
+    size_t intxPagina;
 
     static const size_t MAX_PAGINAS = 4;
 
@@ -57,7 +90,7 @@ private:
     int* paginas[MAX_PAGINAS]; 
     size_t paginasCargadas[MAX_PAGINAS];  
     size_t ultimoUso[MAX_PAGINAS];   
-           
+
     size_t pageHits;
     size_t pageFaults;  
 };
