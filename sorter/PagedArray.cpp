@@ -24,7 +24,7 @@ public:
         pageHits = 0;
         pageFaults = 0;
 
-        //Para las paginas
+        //Para las paginas por que no solo es 1
         for(size_t i = 0 ; i <MAX_PAGINAS; i++)
         { //Crear
             paginas[i] = new int[intxPagina];
@@ -43,8 +43,15 @@ public:
 
     ~PagedArray();
 
-    // Sobrecarga del operador [] si alguien escribe arr[] es esto
-    int& operator[](size_t indice);
+    // Sobrecarga del operador [] si se escibre arr[indice] es esto
+    int& operator[](size_t indice){
+        //que pag y posicion dentro
+        size_t numPagina = calcularNumPagina(indice);
+        size_t offset = calcularOffsetEnPagina(indice);
+
+        return paginas[0][0]; //Esto es por este commit nada mas, temporal
+        
+    }
 
     // Métodos para obtener estadísticas
     size_t obtenerPageHits() const 
@@ -66,13 +73,15 @@ private:
     void guardarPagina(size_t numPagina); 
     void reemplazarPagina(); // LRU
 
+    //En que pagina esta pagedarray[indice]
     size_t calcularNumPagina(size_t indice) const 
     { 
-        return indice / tamPagina; 
+        return indice / intxPagina; 
     }
+    // y en que posicion dentro de esa pagina 
     size_t calcularOffsetEnPagina(size_t indice) const 
-    { 
-        return indice % tamPagina; 
+    { //No se hace con tamPagina por que eso esta en bytes
+        return indice % intxPagina; 
     }
 
     std::fstream archivo;
