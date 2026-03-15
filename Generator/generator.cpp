@@ -20,11 +20,11 @@ int main(int argc, char* argv[]){
     long long Limit = 0; // Numero de enteros de 4 bytes
     if(size == "SMALL") {
         //Numero de enteros:
-        Limit = 512LL * 1024 * 1024 / 4; 
+        Limit = 512LL * 1024 * 1024 / 4 / 2; 
     } else if(size == "MEDIUM") {
-        Limit = 1024LL * 1024 * 1024 / 4; 
+        Limit = 1024LL * 1024 * 1024 / 4 /2 ; 
     } else if(size == "LARGE") {
-        Limit = 2048LL * 1024 * 1024 / 4; 
+        Limit = 2048LL * 1024 * 1024 / 4 / 2; 
     } else {
         std::cout << "Error, la casilla <SIZE> debe ser SMALL, MEDIUM o LARGE" << '\n';
         std::cout << "Presione ENTER para salir" << std::endl;
