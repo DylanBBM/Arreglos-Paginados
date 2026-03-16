@@ -21,8 +21,10 @@ public:
 
         totalElementos = sizeBytes / sizeof(int);
         intxPagina = tamPagina / sizeof(int);
+
         pageHits = 0;
         pageFaults = 0;
+        tiempo = 0;
 
         //Para las paginas por que no solo es 1
         for(size_t i = 0 ; i <MAX_PAGINAS; i++)
@@ -58,24 +60,27 @@ public:
                 break; 
             }
         }
-    if(slot != -1)
-    {
-        pageHits++;
 
-    }else {
+        if(slot != -1) //Si hay que reemplazar 
+        {
+            pageHits++;
 
-        pageFaults++;
-        cargarPagina(numPagina); //desde el disco
+        }else {
 
-        //volver a buscar el slot donde se cargo
-        for(size_t i = 0; i <MAX_PAGINAS; i++ ){
-            if (paginasCargadas[i] == numPagina){
-                slot = i;
-                break;
+            pageFaults++;
+            cargarPagina(numPagina); //desde el disco
+
+            //volver a buscar el slot donde se cargo
+            for(size_t i = 0; i <MAX_PAGINAS; i++ ){
+                if (paginasCargadas[i] == numPagina){
+                    slot = i;
+                    break;
+                }
             }
         }
-    }
-        return paginas[slot][offset]; //Aun temporal 
+            tiempo++;
+            ultimoUso[slot] = tiempo;
+            return paginas[slot][offset]; 
 
     }
 
@@ -98,14 +103,14 @@ private:
     void cargarPagina(size_t numPagina){
 
         int slot = -1;
-        for(size_t i = 0; i <MAX_PAGINAS; i++){
+        for(size_t i = 0; i < MAX_PAGINAS; i++){
             if (paginasCargadas[i]== -1){
                 slot = i;
                 break;
             }
         }
         if (slot == -1){
-            //remplazo
+            slot = reemplazarPagina();
         }
         else{
             //Calcular donde empieza la página.
@@ -117,9 +122,47 @@ private:
         }
     } 
 
-    // Ambos desde el disco
-    void guardarPagina(size_t numPagina); 
-    void reemplazarPagina(); // LRU
+    void guardarPagina(size_t numPagina){
+
+        if (numPagina == -1){
+            return;
+        }
+        int slot = -1;
+
+        for(size_t i = 0 ; i < MAX_PAGINAS; i++){
+            if(paginasCargadas[i] == numPagina){
+                slot = i;
+                break;
+            }
+
+        }
+        if (slot == -1){
+            return;
+        }
+        size_t byteInicial= numPagina * intxPagina * sizeof(int);
+        archivo.seekp(byteInicial, std::ios::beg);
+
+        archivo.write((char*)paginas[slot], intxPagina * sizeof(int)
+    );
+    }
+
+    size_t reemplazarPagina() // LRU
+    {
+        size_t menorUso = ultimoUso[0];
+        size_t slot = 0;
+
+        for(size_t i = 1; i < MAX_PAGINAS; i++)
+        {
+            if (ultimoUso[i] < menorUso)
+            {
+                menorUso = ultimoUso[i];
+                slot = i;
+            }
+        }
+        // guardar la pagina vieja antes de reemplazar
+        guardarPagina(paginasCargadas[slot]);
+        return slot; 
+    } 
 
     //En que pagina esta pagedarray[indice]
     size_t calcularNumPagina(size_t indice) const 
@@ -137,6 +180,7 @@ private:
     size_t tamPagina;          
     size_t totalElementos;     
     size_t intxPagina;
+    size_t tiempo;
 
     static const size_t MAX_PAGINAS = 4;
 
@@ -150,4 +194,4 @@ private:
 
     size_t pageHits;
     size_t pageFaults;  
-};
+}; 
