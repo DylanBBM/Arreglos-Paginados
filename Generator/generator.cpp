@@ -14,6 +14,13 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
+    if(std::string(argv[1]) != "-size" || std::string(argv[3]) != "-output"){
+
+    std::cout << "Uso correcto: generator -size <SIZE> -output <OUTPUT FILE PATH>\n";
+
+    return 1;
+    }
+
     // Obtener el tamaño del archivo 
     std::string size = argv[2];
 
@@ -22,7 +29,7 @@ int main(int argc, char* argv[]){
         //Numero de enteros:
         Limit = 512LL * 1024 * 1024 / 4 / 2; 
     } else if(size == "MEDIUM") {
-        Limit = 1024LL * 1024 * 1024 / 4 /2 ; 
+        Limit = 64LL * 1024 / 4; //* 1024 * 1024 / 4 / 2 ; 
     } else if(size == "LARGE") {
         Limit = 2048LL * 1024 * 1024 / 4 / 2; 
     } else {
@@ -33,7 +40,22 @@ int main(int argc, char* argv[]){
     }
 
     // Obtener la ruta
-    std::string outputFilePath = argv[4];
+    std::string FolderPath = argv[4];
+    std::string fileName;
+
+    if(size == "SMALL") {
+        fileName = "SmallBinaryIntFile.dat";
+    } else if(size == "MEDIUM") {
+        fileName = "MediumBinaryIntFile.dat";
+    } else if(size == "LARGE") {
+        fileName = "LargeBinaryIntFile.dat";
+    }
+    //esto es para que funcione si no termina en \\ .
+    if(FolderPath.back() != '\\' && FolderPath.back() != '/'){
+        FolderPath += "\\";
+    }
+    std::string outputFilePath = FolderPath + fileName;
+
     //Objeto para escribir
     std::ofstream BinaryFile(outputFilePath, std::ios::binary);
     if(!BinaryFile){
@@ -60,3 +82,4 @@ int main(int argc, char* argv[]){
     std::cin.get();
     return 0;
 }
+

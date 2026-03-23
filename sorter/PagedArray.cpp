@@ -1,197 +1,242 @@
 #include <string>
-#include <cstddef>   // size_t para tamaños e índices siempre es + 
-#include <iostream>
-#include <fstream>
+#include <cstddef>  // para usar size_t para tamanios es un entero sin signo
+#include <iostream> //Imprimir
+#include <fstream> //Leer y escribir archivos
 
 using string = std::string;
 
 class PagedArray {
     //Todo lo que sorter ocupa
 public:
+    //Sin el & se crea un string temporal, entonces con el siempre se usa el mismo
+    PagedArray(const string& filePath, size_t PageBSize){
 
-    PagedArray(const string& rutaArchivo, size_t tamPagina){
+        this->filePath= filePath;
+        this->pageBSize = PageBSize;
 
-        this->rutaArchivo = rutaArchivo;
-        this->tamPagina = tamPagina;
-        archivo.open(rutaArchivo, std::ios::in | std::ios::out | std::ios::binary);
+        file.open(filePath, std::ios::in | std::ios::out | std::ios::binary);
 
-        archivo.seekg(0, std::ios::end); 
-        size_t sizeBytes = archivo.tellg();  // Donde estoy en bytes
-        archivo.seekg(0, std::ios::beg); 
+        file.seekg(0, std::ios::end); 
+        size_t sizeBytes = file.tellg();  // Donde estoy en bytes y el tamanio total
+        file.seekg(0, std::ios::beg); 
 
-        totalElementos = sizeBytes / sizeof(int);
-        intxPagina = tamPagina / sizeof(int);
+        //Cantidad de elementos y cuantos hay por página.
+        intAmount = sizeBytes / sizeof(int);
+        intperPage = PageBSize / sizeof(int);
 
         pageHits = 0;
         pageFaults = 0;
-        tiempo = 0;
+        LRUcounter = 0;
 
-        //Para las paginas por que no solo es 1
-        for(size_t i = 0 ; i <MAX_PAGINAS; i++)
-        { //Crear
-            paginas[i] = new int[intxPagina];
+        //El for es para las paginas por que no solo es 1
+        for(size_t i = 0 ; i < MAX_PAGES; i++){   
+            //Crear paginas en el heap
+            pages[i] = new int[intperPage];
         }
 
-        for (size_t i = 0; i < MAX_PAGINAS; i++){ //Marca los paginas vacias
-            paginasCargadas[i] = -1;
+        for (size_t i = 0; i < MAX_PAGES; i++){ //Marca los slots vacios
+            loadedPages[i] = -1;
         }
 
-        for (size_t i = 0; i < MAX_PAGINAS; i++){ 
-            //Ninguna pagina se ha usado todavia
-            ultimoUso[i] = 0;
+        for (size_t i = 0; i < MAX_PAGES; i++){ 
+            //Ninguna pagina se ha usado todavia es para el LRU
+            lastUsed[i] = 0;
         }
     }
 
-    ~PagedArray();
+    PagedArray::~PagedArray(){
+
+        //guardar paginas cargadas, para no perder datos
+        for (size_t i = 0; i < MAX_PAGES; i++){
+
+            //Si en ese slot hay una pagina
+            if (loadedPages[i] != -1) {
+                savePage(loadedPages[i]); 
+            }
+        }
+        //Liberar memoria
+        for(size_t i = 0; i < MAX_PAGES ; i++){
+            delete[] pages[i];
+        }
+
+        file.close();
+    }
 
     // Sobrecarga del operador [] si se escibre arr[indice] es esto
-    int& operator[](size_t indice){
+    int& operator[](size_t index){
 
         //que pag y posicion dentro
-        size_t numPagina = calcularNumPagina(indice);
-        size_t offset = calcularOffsetEnPagina(indice);
+        size_t pageNum = getPageNum(index);
+        size_t posPage = getPosPage(index);
         
-        int slot = -1; //como decir ninguno de momento
+        int slot = -1; //ninguno de momento 
 
-        for(size_t i = 0; i < MAX_PAGINAS; i++)
+        for(size_t i = 0; i < MAX_PAGES; i++)
         {
-            if (paginasCargadas[i] == numPagina){ //si el slot esta vacio
+            //Aqui lo que hace es que si ya esta cargada cambia el slot
+            if (loadedPages[i] == pageNum){ 
                 slot = i;
                 break; 
             }
         }
 
-        if(slot != -1) //Si hay que reemplazar 
-        {
-            pageHits++;
+        // Si lo cambió entonces es por que si estaba cargada la pagina
+        if(slot != -1) {
 
-        }else {
+            pageHits++; 
 
+        } else {
+            //Si no estaba cargada:
             pageFaults++;
-            cargarPagina(numPagina); //desde el disco
+            loadPage(pageNum); //desde el disco
 
-            //volver a buscar el slot donde se cargo
-            for(size_t i = 0; i <MAX_PAGINAS; i++ ){
-                if (paginasCargadas[i] == numPagina){
+            // ** volver a buscar el slot donde se cargo
+            for(size_t i = 0; i < MAX_PAGES; i++ ){
+                if (loadedPages[i] == pageNum){
                     slot = i;
                     break;
                 }
             }
         }
-            tiempo++;
-            ultimoUso[slot] = tiempo;
-            return paginas[slot][offset]; 
+        LRUcounter++;
+        lastUsed[slot] = LRUcounter;
+        return pages[slot][posPage]; 
 
     }
 
     // Métodos para obtener estadísticas
-    size_t obtenerPageHits() const 
+    size_t getPageHits() const 
     { 
         return pageHits; 
     }
-    size_t obtenerPageFaults() const //solo devuelve el valor y no modifica el estado del objeto
+    size_t getPageFaults() const //solo devuelve el valor y no modifica el estado del objeto
     { 
         return pageFaults; 
-    }
-    size_t tamaño() const 
+
+    } //De ints
+    size_t getSize() const 
     { 
-        return totalElementos; 
+        return intAmount; 
     }
 
 private:
+    //Esto solo lo ocupa paged array
 
-    void cargarPagina(size_t numPagina){
+    //Carga una página desde el archivo a RAM
+    void loadPage(size_t PageNum){
 
         int slot = -1;
-        for(size_t i = 0; i < MAX_PAGINAS; i++){
-            if (paginasCargadas[i]== -1){
+
+        //Si algun slot esta vacio usamos ese de una vez, esto se usa al inicio casi siempre
+        for(size_t i = 0; i < MAX_PAGES; i++){
+            if (loadedPages[i] == -1){
                 slot = i;
                 break;
             }
         }
+        
+        //Si todos los slots estan usados
         if (slot == -1){
-            slot = reemplazarPagina();
+            slot = replacePage();   //Reemplazar
         }
-        else{
-            //Calcular donde empieza la página.
-            size_t byteInicial = numPagina * intxPagina * sizeof(int);
-            archivo.seekg(byteInicial, std::ios::beg);
 
-            archivo.read((char*)paginas[slot],intxPagina* sizeof(int));
-            paginasCargadas[slot] = numPagina;
-        }
-    } 
+        //Calcular donde empieza la página.     
+        size_t startingByte = PageNum * intperPage * sizeof(int);
+        //ir donde empieza
 
-    void guardarPagina(size_t numPagina){
+        file.seekg(startingByte, std::ios::beg);
+        //Leer la página desde el disco hacia RAM
+        file.read((char*)pages[slot], intperPage * sizeof(int));
+        
+        //Esto es como para decir "Slot 2 ahora tiene la pagina 3"
+        loadedPages[slot] = PageNum;
+    }
 
-        if (numPagina == -1){
+    //Guardar una pagina de RAM al archivo
+    void savePage(size_t PageNum){
+
+        //Si no hay página
+        if (PageNum == -1){
             return;
         }
-        int slot = -1;
 
-        for(size_t i = 0 ; i < MAX_PAGINAS; i++){
-            if(paginasCargadas[i] == numPagina){
-                slot = i;
+        int slot = -1;
+        //Buscar en que slot esta la pagina
+        for(size_t i = 0 ; i < MAX_PAGES; i++){
+            if(loadedPages[i] == PageNum){
+                slot = i; //Que slot tiene esa pagina
                 break;
             }
 
         }
+
+        //Si no esta la pagina en la RAM
         if (slot == -1){
             return;
         }
-        size_t byteInicial= numPagina * intxPagina * sizeof(int);
-        archivo.seekp(byteInicial, std::ios::beg);
+        
+        //Calcular posicion del archivo
+        size_t StartingByte= PageNum * intperPage * sizeof(int);
+        file.seekp(StartingByte, std::ios::beg);
 
-        archivo.write((char*)paginas[slot], intxPagina * sizeof(int)
+        //Escribir de ram al archivo o disco
+        file.write((char*)pages[slot], intperPage * sizeof(int)
     );
     }
 
-    size_t reemplazarPagina() // LRU
-    {
-        size_t menorUso = ultimoUso[0];
+    //Elegir que página cambiar con Last Recently used
+    size_t replacePage() {
+
+        //Primero suponemos que el slot 0 es el menor
+        size_t LeastUsed = lastUsed[0];
         size_t slot = 0;
 
-        for(size_t i = 1; i < MAX_PAGINAS; i++)
+        for(size_t i = 1; i < MAX_PAGES; i++)
         {
-            if (ultimoUso[i] < menorUso)
+            //Si es menor, se cambia
+            if (lastUsed[i] < LeastUsed)
             {
-                menorUso = ultimoUso[i];
+                LeastUsed = lastUsed[i];
                 slot = i;
             }
         }
-        // guardar la pagina vieja antes de reemplazar
-        guardarPagina(paginasCargadas[slot]);
+        // guardar la pagina antes de reemplazar
+        savePage(loadedPages[slot]);
+        //Para cargar la nueva
         return slot; 
     } 
 
     //En que pagina esta pagedarray[indice]
-    size_t calcularNumPagina(size_t indice) const 
+    size_t getPageNum(size_t index) const 
     { 
-        return indice / intxPagina; 
+        return index / intperPage; 
     }
     // y en que posicion dentro de esa pagina 
-    size_t calcularOffsetEnPagina(size_t indice) const 
+    size_t getPosPage(size_t index) const 
     { //No se hace con tamPagina por que eso esta en bytes
-        return indice % intxPagina; 
+        return index % intperPage; 
     }
 
-    std::fstream archivo;
-    string rutaArchivo;         
-    size_t tamPagina;          
-    size_t totalElementos;     
-    size_t intxPagina;
-    size_t tiempo;
+    //Variables
+    std::fstream file;
+    string filePath;         
+    size_t pageBSize; //Bytes         
+    size_t intAmount;     
+    size_t intperPage;
+    size_t LRUcounter; //Para Lru
 
-    static const size_t MAX_PAGINAS = 4;
+    static const size_t MAX_PAGES = 4;
 
     /*Esto es punteros a las 4 pags
     que pagina esta cargada en cada espacio
     y para el lru
     */
-    int* paginas[MAX_PAGINAS]; 
-    size_t paginasCargadas[MAX_PAGINAS];  
-    size_t ultimoUso[MAX_PAGINAS];   
+
+    int* pages[MAX_PAGES]; 
+    size_t loadedPages[MAX_PAGES];  
+    size_t lastUsed[MAX_PAGES];   
 
     size_t pageHits;
     size_t pageFaults;  
 }; 
+
