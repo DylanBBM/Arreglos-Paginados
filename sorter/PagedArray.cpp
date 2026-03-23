@@ -2,14 +2,12 @@
 #include <cstddef>  // para usar size_t para tamanios es un entero sin signo
 #include <iostream> //Imprimir
 #include <fstream> //Leer y escribir archivos
+#include "PagedArray.h"
 
-using string = std::string;
 
-class PagedArray {
-    //Todo lo que sorter ocupa
-public:
+
     //Sin el & se crea un string temporal, entonces con el siempre se usa el mismo
-    PagedArray(const string& filePath, size_t PageBSize){
+    PagedArray::PagedArray(const string& filePath, size_t PageBSize){
 
         this->filePath= filePath;
         this->pageBSize = PageBSize;
@@ -63,7 +61,7 @@ public:
     }
 
     // Sobrecarga del operador [] si se escibre arr[indice] es esto
-    int& operator[](size_t index){
+    int& PagedArray::operator[](size_t index){
 
         //que pag y posicion dentro
         size_t pageNum = getPageNum(index);
@@ -105,25 +103,25 @@ public:
     }
 
     // Métodos para obtener estadísticas
-    size_t getPageHits() const 
+    size_t PagedArray::getPageHits() const 
     { 
         return pageHits; 
     }
-    size_t getPageFaults() const //solo devuelve el valor y no modifica el estado del objeto
+    size_t PagedArray::getPageFaults() const //solo devuelve el valor y no modifica el estado del objeto
     { 
         return pageFaults; 
 
     } //De ints
-    size_t getSize() const 
+    size_t PagedArray::getSize() const 
     { 
         return intAmount; 
     }
 
-private:
+
     //Esto solo lo ocupa paged array
 
     //Carga una página desde el archivo a RAM
-    void loadPage(size_t PageNum){
+    void PagedArray::loadPage(size_t PageNum){
 
         int slot = -1;
 
@@ -153,7 +151,7 @@ private:
     }
 
     //Guardar una pagina de RAM al archivo
-    void savePage(size_t PageNum){
+    void PagedArray::savePage(size_t PageNum){
 
         //Si no hay página
         if (PageNum == -1){
@@ -167,6 +165,7 @@ private:
                 slot = i; //Que slot tiene esa pagina
                 break;
             }
+            
 
         }
 
@@ -185,7 +184,7 @@ private:
     }
 
     //Elegir que página cambiar con Last Recently used
-    size_t replacePage() {
+    size_t PagedArray::replacePage() {
 
         //Primero suponemos que el slot 0 es el menor
         size_t LeastUsed = lastUsed[0];
@@ -207,36 +206,16 @@ private:
     } 
 
     //En que pagina esta pagedarray[indice]
-    size_t getPageNum(size_t index) const 
+    size_t PagedArray::getPageNum(size_t index) const 
     { 
         return index / intperPage; 
     }
     // y en que posicion dentro de esa pagina 
-    size_t getPosPage(size_t index) const 
+    size_t PagedArray::getPosPage(size_t index) const 
     { //No se hace con tamPagina por que eso esta en bytes
         return index % intperPage; 
     }
 
-    //Variables
-    std::fstream file;
-    string filePath;         
-    size_t pageBSize; //Bytes         
-    size_t intAmount;     
-    size_t intperPage;
-    size_t LRUcounter; //Para Lru
 
-    static const size_t MAX_PAGES = 4;
 
-    /*Esto es punteros a las 4 pags
-    que pagina esta cargada en cada espacio
-    y para el lru
-    */
-
-    int* pages[MAX_PAGES]; 
-    size_t loadedPages[MAX_PAGES];  
-    size_t lastUsed[MAX_PAGES];   
-
-    size_t pageHits;
-    size_t pageFaults;  
-}; 
 
