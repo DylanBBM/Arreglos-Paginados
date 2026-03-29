@@ -3,9 +3,15 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
+  <component name="BackendCodeEditorMiscSettings">
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="27" type="long" />
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="17a38148-e951-4054-bfab-e36b157c9b31" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Generator/generator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Generator/generator.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sorter/sorter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sorter/sorter.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,20 +27,20 @@
   <component name="MacroExpansionManager">
     <option name="directoryName" value="DT3DWmM6" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 2
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
   <component name="ProjectId" id="3Axbe5QIzI3DbJi3Bq0FN4f9BXG" />
-  <component name="ProjectStatusUIService"><![CDATA[{
-  "uiKindId": "Widget"
-}]]></component>
+  <component name="ProjectStatusUIService">{
+  &quot;uiKindId&quot;: &quot;Widget&quot;
+}</component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "C/C++ File.generator.cpp.executor": "Debug",
+    "C/C++ File.generator.cpp.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.RadMigrateCodeStyle": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -45,7 +51,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "Binary-File-Generator",
+    "git-widget-placeholder": "Sorter",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Users/Dylan/Documents/Arreglos-Paginados",
     "nodejs_package_manager_path": "npm",
@@ -75,6 +81,7 @@
       <option name="presentableId" value="Default" />
       <updated>1773537264147</updated>
       <workItem from="1773537266898" duration="1735000" />
+      <workItem from="1774738410426" duration="89000" />
     </task>
     <servers />
   </component>
@@ -86,7 +93,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Generator/generator.cpp</url>
-          <line>24</line>
+          <line>87</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

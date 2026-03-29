@@ -62,7 +62,7 @@
 
     // Sobrecarga del operador [] si se escibre arr[indice] es esto
     int& PagedArray::operator[](size_t index){
-
+        
         //que pag y posicion dentro
         size_t pageNum = getPageNum(index);
         size_t posPage = getPosPage(index);

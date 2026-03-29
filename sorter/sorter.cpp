@@ -3,6 +3,10 @@
 #include <string>
 #include "PagedArray.h"
 #include "../algorithms/QuickSort.h"
+#include "../algorithms/MergeSort.h"
+#include "../algorithms/HeapSort.h"
+#include "../algorithms/SelectionSort.h"
+#include "../algorithms/"
 
 int main() {
     //Esto es fijo es para testear por ahora.
@@ -40,7 +44,7 @@ int main() {
 
     // Ordenar con QuickSort
     if (arr.getSize() > 0) {
-        quickSort(arr, 0, arr.getSize() - 1);
+        mergeSort(arr, 0, arr.getSize() - 1);
     }
 
     std::cout << "Archivo ordenado" << std::endl;
