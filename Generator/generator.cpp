@@ -84,14 +84,11 @@ int main(int argc, char* argv[]){
     long long Limit = 0; // Numero de enteros de 4 bytes
 
     if(size == "small") {
-
         Limit = 256LL * 1024 * 1024 / 4; 
         //No se si usar esto checkDiskSpace(argv[4], Limit);
     } else if(size == "medium") {
-
         Limit = 512LL * 1024 * 1024 / 4; 
     } else if(size == "large") {
-
         Limit = 1024LL * 1024 * 1024 / 4; 
 }
     // Obtener la ruta
@@ -124,7 +121,6 @@ int main(int argc, char* argv[]){
 
     // Hace una semilla para los numeros random
     std::mt19937 randomSeedGenerator(std::random_device{}());
-    //Para solo positivos
     std::uniform_int_distribution<int32_t> dist(0, INT32_MAX);
     int randomNumber;
 

@@ -8,6 +8,7 @@
 #include "../algorithms/HeapSort.h"
 #include "../algorithms/SelectionSort.h"
 #include "../algorithms/RadixSort.h"
+#include "../algorithms/ShellSort.h"
 
 
 int main(int argc, char* argv[]) {
@@ -70,15 +71,19 @@ int main(int argc, char* argv[]) {
     if (arr.getSize() > 0) {
 
         // Limitantes de enteros para algunos algoritmos
-        size_t heapLimit     = (64LL * 1024 * 1024) / sizeof(int); // 64 MB
+        size_t heapLimit     = (10LL * 1024 * 1024) / sizeof(int); // 10 MB
         size_t radixLimit    = (32LL * 1024 * 1024) / sizeof(int); // 32 MB
-        size_t selectionLimit= (10LL * 1024 * 1024) / sizeof(int); // 10 MB
+        size_t selectionLimit= (1LL * 1024 * 256) / sizeof(int); // 256kb
 
         if (algoritmo == "quick") {
             quickSort(arr, 0, arr.getSize() - 1);
         }
         else if (algoritmo == "merge") {
-            mergeSort(arr, 0, arr.getSize() - 1);
+            mergeSort(arr, 0, arr.getSize() - 1); 
+              
+        }else if (algoritmo == "selection") {
+            selectionSort(arr);
+        
         }
         else if (algoritmo == "heap") {
             if (arr.getSize() > heapLimit) {
@@ -87,12 +92,12 @@ int main(int argc, char* argv[]) {
             }
             heapSort(arr, arr.getSize());
         }
-        else if (algoritmo == "selection") {
+        else if (algoritmo == "shell") {
             if (arr.getSize() > selectionLimit) {
                 std::cout << "SelectionSort no permitido para archivos mayores a 10MB" << '\n';
                 return 1;
             }
-            selectionSort(arr);
+            shellSort(arr);
         }
         else if (algoritmo == "radix") {
             if (arr.getSize() > radixLimit) {
