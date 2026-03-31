@@ -69,6 +69,11 @@ int main(int argc, char* argv[]) {
     
     if (arr.getSize() > 0) {
 
+        // Limitantes de enteros para algunos algoritmos
+        size_t heapLimit     = (64LL * 1024 * 1024) / sizeof(int); // 64 MB
+        size_t radixLimit    = (32LL * 1024 * 1024) / sizeof(int); // 32 MB
+        size_t selectionLimit= (10LL * 1024 * 1024) / sizeof(int); // 10 MB
+
         if (algoritmo == "quick") {
             quickSort(arr, 0, arr.getSize() - 1);
         }
@@ -76,20 +81,28 @@ int main(int argc, char* argv[]) {
             mergeSort(arr, 0, arr.getSize() - 1);
         }
         else if (algoritmo == "heap") {
+            if (arr.getSize() > heapLimit) {
+                std::cout << "HeapSort no permitido para archivos mayores a 64MB" << '\n';
+                return 1;
+            }
             heapSort(arr, arr.getSize());
         }
         else if (algoritmo == "selection") {
-            if (arr.getSize() > 1000000) {
-                std::cout << "SelectionSort no permitido para archivos grandes\n";
+            if (arr.getSize() > selectionLimit) {
+                std::cout << "SelectionSort no permitido para archivos mayores a 10MB" << '\n';
                 return 1;
             }
             selectionSort(arr);
         }
         else if (algoritmo == "radix") {
+            if (arr.getSize() > radixLimit) {
+                std::cout << "RadixSort no permitido para archivos mayores a 32MB" << '\n';
+                return 1;
+            }
             radixsort(arr, arr.getSize());
         }
-        else {
-            std::cout << "Algoritmo no valido\n";
+        else { 
+            std::cout << "Algoritmo no valido" << '\n';
             return 1;
         }
     }

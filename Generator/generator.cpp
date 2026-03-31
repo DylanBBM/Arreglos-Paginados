@@ -126,7 +126,7 @@ int main(int argc, char* argv[]){
     std::mt19937 randomSeedGenerator(std::random_device{}());
     //Para solo positivos
     std::uniform_int_distribution<int32_t> dist(0, INT32_MAX);
-    int32_t randomNumber;
+    int randomNumber;
 
     // Hasta el limite
     for(long long i = 0; i < Limit; i++){
