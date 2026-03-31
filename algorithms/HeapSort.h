@@ -4,7 +4,7 @@
 #include "../sorter/PagedArray.h"
 
 void heapify(PagedArray &arr, int n, int i);
-void heapSort(PagedArray &arr);
-void printArray(PagedArray &arr);
+void heapSort(PagedArray &arr, int n);
+
 
 #endif

@@ -1,36 +1,55 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 #include "PagedArray.h"
 #include "../algorithms/QuickSort.h"
 #include "../algorithms/MergeSort.h"
 #include "../algorithms/HeapSort.h"
 #include "../algorithms/SelectionSort.h"
-#include "../algorithms/"
+#include "../algorithms/RadixSort.h"
 
-int main() {
-    //Esto es fijo es para testear por ahora.
-    std::string folder = "C:\\Users\\Dylan\\Desktop\\Archivos del PagedArray\\";
-    std::string inputFile = folder + "MediumBinaryIntFile.dat";
-    std::string outputFile = folder + "MediumSortedIntFile";
 
-    //ate es at end lo abre de una vez a diferencia de end, pero el cursor se puede mover despues
-    std::ifstream checkFile(inputFile, std::ios::binary | std::ios::ate); 
-    if (!checkFile.is_open()) {
-        std::cerr << "No se pudo abrir" << std::endl;
+int main(int argc, char* argv[]) {
+
+    string inputFile, outputFile, algoritmo;
+    size_t pageSize = 0;
+
+    //Leer 
+    for (int i = 1; i < argc; i++) {
+        string arg = argv[i];
+
+        if (arg == "-input") inputFile = argv[++i];
+        else if (arg == "-output") outputFile = argv[++i];
+        else if (arg == "-alg") algoritmo = argv[++i];
+        else if (arg == "-pageSize") pageSize = std::stoul(argv[++i]);
+    }
+
+    // Validaciones
+    if (inputFile.empty() || outputFile.empty() || algoritmo.empty() || pageSize == 0) {
+        std::cout << "Uso:\n";
+        std::cout << "sorter -input <archivo> -output <archivo> -alg <algoritmo> -pageSize <tam>\n";
         return 1;
     }
 
-    std::streamsize size = checkFile.tellg(); //Para saber de cuanto es
-    //std::cout << "Tamaño del archivo original: " << size << " bytes" << std::endl;
-    //Volver al inicio
-    checkFile.seekg(0, std::ios::beg);
+    if (pageSize % 2 != 0) {
+        std::cout << "El pageSize debe ser multiplo de 2\n";
+        return 1;
+    }
 
-    //src es el archivo que uno quiere copiar dst el que se cpopia
+    // Verificar archivo
+    std::ifstream checkFile(inputFile, std::ios::binary | std::ios::ate); 
+    if (!checkFile.is_open()) {
+        std::cerr << "No se pudo abrir archivo input\n";
+        return 1;
+    }
+    checkFile.close();
+
+    // Copiar archivo
     std::ifstream src(inputFile, std::ios::binary);
     std::ofstream dst(outputFile, std::ios::binary);
     if (!src || !dst) {
-        std::cerr << "Error al abrir archivos para copiar" << std::endl;
+        std::cerr << "Error al copiar archivos\n";
         return 1;
     }
     dst << src.rdbuf();
@@ -38,33 +57,65 @@ int main() {
     dst.close();
 
     // PagedArray
-    size_t pageSize = 4096; //para test
     PagedArray arr(outputFile, pageSize);
-    std::cout << "Cantidad de enteros en el archivo: " << arr.getSize() << std::endl;
 
-    // Ordenar con QuickSort
+    std::cout << "Cantidad de enteros: " << arr.getSize() << std::endl;
+
+    // Medir tiempo
+    auto start = std::chrono::high_resolution_clock::now();
+
+    
     if (arr.getSize() > 0) {
-        mergeSort(arr, 0, arr.getSize() - 1);
+
+        if (algoritmo == "quick") {
+            quickSort(arr, 0, arr.getSize() - 1);
+        }
+        else if (algoritmo == "merge") {
+            mergeSort(arr, 0, arr.getSize() - 1);
+        }
+        else if (algoritmo == "heap") {
+            heapSort(arr, arr.getSize());
+        }
+        else if (algoritmo == "selection") {
+            if (arr.getSize() > 1000000) {
+                std::cout << "SelectionSort no permitido para archivos grandes\n";
+                return 1;
+            }
+            selectionSort(arr);
+        }
+        else if (algoritmo == "radix") {
+            radixsort(arr, arr.getSize());
+        }
+        else {
+            std::cout << "Algoritmo no valido\n";
+            return 1;
+        }
     }
 
-    std::cout << "Archivo ordenado" << std::endl;
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+
+
+    std::cout << "Archivo ordenado con " << algoritmo << std::endl;
+    std::cout << "Tiempo: " << duration.count() << " segundos\n";
     std::cout << "Page Hits: " << arr.getPageHits() << std::endl;
     std::cout << "Page Faults: " << arr.getPageFaults() << std::endl;
 
-    // guardarlo para verlo en txt
-    std::ofstream txtFile(folder + "MediumSortedIntFile.txt");
+
+    std::ofstream txtFile(outputFile + ".txt");
     if (!txtFile) {
-        std::cerr << "Error creadno el archivo" << std::endl;
+        std::cerr << "Error creando archivo txt\n";
         return 1;
     }
 
     for (size_t i = 0; i < arr.getSize(); i++) {
-        txtFile << arr[i]; //operator, escribe ese entero en el archivo
-        if (i != arr.getSize() - 1) txtFile << ","; //poner una coma en los numeros excepto despues del ultiom
+        txtFile << arr[i];
+        if (i != arr.getSize() - 1) txtFile << ",";
     }
+
     txtFile.close();
 
-    std::cout << "Archivo generado " << std::endl;
+    std::cout << "Archivo generado correctamente\n";
 
     return 0;
 }

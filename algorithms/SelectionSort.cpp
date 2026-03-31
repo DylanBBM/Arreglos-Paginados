@@ -1,9 +1,10 @@
-// C++ program to implement Selection Sort
-#include <bits/stdc++.h>
+#include "SelectionSort.h"
+#include <algorithm>
 using namespace std;
 
-void selectionSort(vector<int> &arr) {
-    int n = arr.size();
+void selectionSort(PagedArray &arr) { 
+
+    int n = arr.getSize();
 
     for (int i = 0; i < n - 1; ++i) {
 

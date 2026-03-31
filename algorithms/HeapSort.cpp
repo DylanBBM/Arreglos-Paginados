@@ -1,11 +1,12 @@
 // C++ program for implementation of Heap Sort
 #include <iostream>
+#include <algorithm>
 #include "HeapSort.h"
 using namespace std;
 
 // To heapify a subtree rooted with node i which is
 // an index in arr[]. n is size of heap
-void heapify(PagedArray &arr, int n, int i)
+void heapify(PagedArray& arr, int n, int i)
 {
     int largest = i; // Initialize largest as root Since we are using 0 based indexing
     int l = 2 * i + 1; // left = 2*i + 1
@@ -29,11 +30,8 @@ void heapify(PagedArray &arr, int n, int i)
 }
 
 // main function to do heap sort
-void heapSort(PagedArray &arr)
+void heapSort(PagedArray& arr, int n)
 {
-    //Linea para que sirva 
-    int n = arr.getSize();
-
     // Build heap (rearrange array)
     for (int i = n / 2 - 1; i >= 0; i--)
         heapify(arr, n, i);
@@ -47,4 +45,3 @@ void heapSort(PagedArray &arr)
         heapify(arr, i, 0);
     }
 }
-
