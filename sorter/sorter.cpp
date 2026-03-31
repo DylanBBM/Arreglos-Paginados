@@ -14,6 +14,7 @@ int main(int argc, char* argv[]) {
 
     string inputFile, outputFile, algoritmo;
     size_t pageSize = 0;
+    size_t pageCount = 0;
 
     //Leer 
     for (int i = 1; i < argc; i++) {
@@ -23,12 +24,13 @@ int main(int argc, char* argv[]) {
         else if (arg == "-output") outputFile = argv[++i];
         else if (arg == "-alg") algoritmo = argv[++i];
         else if (arg == "-pageSize") pageSize = std::stoul(argv[++i]);
+        else if (arg == "-pageCount") pageCount = std::stoul(argv[++i]); // FIX
     }
 
     // Validaciones
-    if (inputFile.empty() || outputFile.empty() || algoritmo.empty() || pageSize == 0) {
+    if (inputFile.empty() || outputFile.empty() || algoritmo.empty() || pageSize == 0 || pageCount == 0){ 
         std::cout << "Uso:\n";
-        std::cout << "sorter -input <archivo> -output <archivo> -alg <algoritmo> -pageSize <tam>\n";
+        std::cout << "sorter -input <archivo> -output <archivo> -alg <algoritmo> -pageSize <tam> -pageCount <count>" << '\n';
         return 1;
     }
 
@@ -57,7 +59,7 @@ int main(int argc, char* argv[]) {
     dst.close();
 
     // PagedArray
-    PagedArray arr(outputFile, pageSize);
+    PagedArray arr(outputFile, pageSize, pageCount);
 
     std::cout << "Cantidad de enteros: " << arr.getSize() << std::endl;
 
@@ -97,9 +99,12 @@ int main(int argc, char* argv[]) {
 
 
     std::cout << "Archivo ordenado con " << algoritmo << std::endl;
-    std::cout << "Tiempo: " << duration.count() << " segundos\n";
+    std::cout << "Tiempo: " << duration.count() << " segundos" << std::endl;
     std::cout << "Page Hits: " << arr.getPageHits() << std::endl;
     std::cout << "Page Faults: " << arr.getPageFaults() << std::endl;
+    std::cout << "Con PageSize: " << pageSize << std::endl;
+    std::cout << "Con PageCount: " << pageCount << std::endl;
+
 
 
     std::ofstream txtFile(outputFile + ".txt");

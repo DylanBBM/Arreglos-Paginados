@@ -1,7 +1,6 @@
 // PagedArray.h
 #ifndef PAGEDARRAY_H
 #define PAGEDARRAY_H
-
 #include <string>
 #include <cstddef>
 #include <fstream>
@@ -10,7 +9,7 @@ using string = std::string;
 
 class PagedArray {
 public:
-    PagedArray(const string& filePath, size_t PageBSize);
+    PagedArray(const string& filePath, size_t PageBSize, size_t pageCount);
     ~PagedArray();
 
     int& operator[](size_t index);
@@ -33,13 +32,12 @@ private:
     size_t intperPage;
     size_t LRUcounter;
 
-    static const size_t MAX_PAGES = 4;
-    int* pages[MAX_PAGES];
-    size_t loadedPages[MAX_PAGES];
-    size_t lastUsed[MAX_PAGES];
-
+    size_t pageCount;
+    int** pages;         
+    int* loadedPages;     
+    size_t* lastUsed;    
     size_t pageHits;
     size_t pageFaults;
 };
 
-#endif 
+#endif

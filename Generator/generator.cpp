@@ -80,17 +80,20 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    // Calcular cantidad de enteros
+   // Calcular cantidad de enteros
     long long Limit = 0; // Numero de enteros de 4 bytes
-    if(size == "small") {
-        Limit = 512LL * 1024 * 1024 / 4; 
-        //checkDiskSpace(argv[4], Limit); // argv[4] = folderPath no se si utilizar esto
-    } else if(size == "medium") {
-        Limit = 1024LL * 2; //* 1024 * 1024 / 4; 
-    } else if(size == "large") {
-        Limit = 2048LL * 1024 * 1024 / 4; 
-    }
 
+    if(size == "small") {
+
+        Limit = 256LL * 1024 * 1024 / 4; 
+        //No se si usar esto checkDiskSpace(argv[4], Limit);
+    } else if(size == "medium") {
+
+        Limit = 512LL * 1024 * 1024 / 4; 
+    } else if(size == "large") {
+
+        Limit = 1024LL * 1024 * 1024 / 4; 
+}
     // Obtener la ruta
     std::string FolderPath = argv[4];
     std::string fileName;
@@ -121,11 +124,13 @@ int main(int argc, char* argv[]){
 
     // Hace una semilla para los numeros random
     std::mt19937 randomSeedGenerator(std::random_device{}());
+    //Para solo positivos
+    std::uniform_int_distribution<int32_t> dist(0, INT32_MAX);
     int32_t randomNumber;
 
     // Hasta el limite
     for(long long i = 0; i < Limit; i++){
-        randomNumber = randomSeedGenerator();
+        randomNumber = dist(randomSeedGenerator);
         // Write (direccion char, tamanio)
         BinaryFile.write((char*)&randomNumber, sizeof(int32_t));
     }
