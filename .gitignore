@@ -40,3 +40,11 @@
 # debug information files
 *.dwo
 
+#Json
+*.json
+
+# VS Code
+*.vscode/
+
+#JetBrains
+*.idea/

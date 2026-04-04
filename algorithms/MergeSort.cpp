@@ -1,13 +1,13 @@
 #include <iostream>
 #include "MergeSort.h"
-#include <vector>
 using namespace std;
 
 void merge(PagedArray& arr, int left, int mid, int right){
     int n1 = mid - left + 1;
     int n2 = right - mid;
 
-    vector<int> L(n1), R(n2);
+    int* L = new int[n1];
+    int* R = new int[n2];
 
     // Copy data to temp vectors L[] and R[]
     for (int i = 0; i < n1; i++)

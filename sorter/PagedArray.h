@@ -1,15 +1,13 @@
-// PagedArray.h
 #ifndef PAGEDARRAY_H
 #define PAGEDARRAY_H
 #include <string>
 #include <cstddef>
 #include <fstream>
 
-using string = std::string;
 
 class PagedArray {
 public:
-    PagedArray(const string& filePath, size_t PageBSize, size_t pageCount);
+    PagedArray(const std::string& filePath, size_t pageSize, size_t pageCount);
     ~PagedArray();
 
     int& operator[](size_t index);
@@ -26,15 +24,15 @@ private:
     size_t getPosPage(size_t index) const;
 
     std::fstream file;
-    string filePath;
-    size_t pageBSize;
+    std::string filePath;
+    size_t pageSize;
     size_t intAmount;
-    size_t intperPage;
+    size_t intsPerPage;
     size_t LRUcounter;
-
     size_t pageCount;
     int** pages;         
-    int* loadedPages;     
+    int* loadedPages; 
+    bool* dirtyPage; 
     size_t* lastUsed;    
     size_t pageHits;
     size_t pageFaults;
