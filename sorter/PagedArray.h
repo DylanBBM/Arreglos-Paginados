@@ -17,7 +17,7 @@ public:
     size_t getSize() const;
 
 private:
-    void loadPage(size_t PageNum);
+    int loadPage(size_t PageNum);
     void savePage(size_t PageNum);
     size_t replacePage();
     size_t getPageNum(size_t index) const;

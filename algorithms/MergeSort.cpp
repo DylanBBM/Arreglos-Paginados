@@ -47,6 +47,8 @@ void merge(PagedArray& arr, int left, int mid, int right){
         j++;
         k++;
     }
+    delete[] L;
+    delete[] R;
 }
 
 // begin is for left index and end is right index

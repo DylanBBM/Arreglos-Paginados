@@ -30,7 +30,7 @@ void writeFile(const std::string& outputFilePath, long long Limit) {
     // Escribe en el archivo de manera binaria
     std::ofstream BinaryFile(outputFilePath, std::ios::binary);
     if(!BinaryFile){
-        throw std::runtime_error("Error: no se pudo abrir el archivo");
+        throw std::runtime_error("Error: no se pudo crear o abrir el archivo");
     }
 
     // Mersene Twister 19937, random_device puede usar hardware o ruido.
@@ -65,15 +65,21 @@ std::string getOutputPath(char* argv[]){
 
     // Obtener carpeta padre
     std::filesystem::path pathObj(outputPath);
-    std::filesystem::path parent = pathObj.parent_path();
-
-    // Si tiene carpeta padre, validarla
-    if (!parent.empty() && !std::filesystem::exists(parent)) {
-        throw std::invalid_argument("Error: La carpeta destino no existe.");
+    // Si es una carpeta existente, genera un nombre automático
+    if (std::filesystem::is_directory(pathObj)) {
+        outputPath = (pathObj / "BinaryIntFile.dat").string();
+    } 
+    else {
+        // Si tiene carpeta padre, validarla
+        std::filesystem::path parent = pathObj.parent_path();
+        if (!parent.empty() && !std::filesystem::exists(parent)) {
+            throw std::invalid_argument("Error: La carpeta destino no existe.");
+        }
     }
 
     return outputPath;
 }
+
 
 void inputSizeValidation(int argc){
     // Valida cantidad de argumentos

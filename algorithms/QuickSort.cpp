@@ -19,7 +19,7 @@ int partition(PagedArray &arr, int low, int high) {
 void quickSort(PagedArray &arr, int low, int high) {
     if (low < high) {
         int pi = partition(arr, low, high);
-        if(pi > 0) quickSort(arr, low, pi - 1); // izquierda
-        quickSort(arr, pi + 1, high);           // derecha
+        if(pi > 0) quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);          
     }
 }

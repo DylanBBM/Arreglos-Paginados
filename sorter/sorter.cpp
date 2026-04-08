@@ -39,13 +39,20 @@ void parseArgs(int argc, char* argv[], Config& config) {
             if(i+1 >= argc){
                 throw std::invalid_argument("Error: Falta valor para -input");
             }
-            config.inputFile = argv[++i];//++i lo que hace es sumar y asignar.
+            config.inputFile = argv[++i];//++i lo que hace es sumar y asignar, si i es 1 actualmente se suma 1 entonces 2 y asigna ese "2"
         }
         else if(arg == "-output"){
             if(i+1 >= argc){
                 throw std::invalid_argument("Error: Falta valor para -output");
             }
-            config.outputFile = argv[++i];   
+            std::string outputPath = argv[++i];
+
+            // Si si es una carpeta, genera los nombres automaticamente
+            if (std::filesystem::is_directory(outputPath)) {
+                config.outputFile = (std::filesystem::path(outputPath) / "SortedInts.dat").string();
+            } else {
+                config.outputFile = outputPath;
+            }
         }
         else if(arg == "-alg"){
             if(i+1 >= argc){

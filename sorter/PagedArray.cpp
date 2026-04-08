@@ -12,13 +12,18 @@ PagedArray::PagedArray(const std::string& filePath, size_t pageSize, size_t page
     this->pageSize = pageSize;
     this->pageCount = pageCount;
 
+    //in para leer out escribir
     file.open(filePath, std::ios::in | std::ios::out | std::ios::binary);
+
+    if (!file.is_open()) {
+        throw std::runtime_error("Error: No se pudo abrir el archivo desde PagedArray");
+    }
 
     file.seekg(0, std::ios::end); 
     size_t sizeBytes = file.tellg();  // Donde estoy en bytes y el tamanio total
     file.seekg(0, std::ios::beg); 
 
-    //Cantidad de elementos y cuantos hay por página.
+    //Cantidad de enteros y cuantos hay por página.
     intAmount = sizeBytes / sizeof(int);
     intsPerPage = pageSize; // ahora es cantidad de enteros por pagina
 
@@ -32,21 +37,22 @@ PagedArray::PagedArray(const std::string& filePath, size_t pageSize, size_t page
     lastUsed = new size_t[pageCount];
     dirtyPage = new bool[pageCount];
 
-    //El for es para las paginas por que no solo es 1
+    //Crear las paginas en el heap con memoria reservada
     for(size_t i = 0 ; i < pageCount; i++){   
-        //Crear paginas en el heap
         pages[i] = new int[intsPerPage];
     }
 
-    for (size_t i = 0; i < pageCount; i++){ //Marca los slots vacios
+    //Marca los slots vacios, no hay ninguna pagina cargada
+    for (size_t i = 0; i < pageCount; i++){ 
         loadedPages[i] = -1;
     }
 
+    //Ninguna pagina ha sido usada todavia
     for (size_t i = 0; i < pageCount; i++){ 
-        //Ninguna pagina se ha usado todavia es para el LRU
         lastUsed[i] = 0;
     }
 
+    //Ninguna pagina ha sido modificada todavia
     for (size_t i = 0; i<pageCount; i++){
         dirtyPage[i] = false;
     }
@@ -79,7 +85,11 @@ PagedArray::~PagedArray(){
 
 // Sobrecarga del operador [] si se escibre arr[indice] es esto
 int& PagedArray::operator[](size_t index){
-        
+    
+    if (index >= intAmount) {
+        throw std::out_of_range("Error: indice fuera de rango");
+    }
+
     //que pag y posicion dentro
     size_t pageNum = getPageNum(index);
     size_t posPage = getPosPage(index);
@@ -89,7 +99,7 @@ int& PagedArray::operator[](size_t index){
     for(size_t i = 0; i < pageCount; i++){
             //Aqui lo que hace es que si ya esta cargada cambia el slot
         if (loadedPages[i] == (int)pageNum){ 
-            slot = i;
+            slot = i; //Para saber si hay pagehit 
             break; 
         }
     }
@@ -101,15 +111,9 @@ int& PagedArray::operator[](size_t index){
     else{
         //Si no estaba cargada:
         pageFaults++;
-        loadPage(pageNum); //desde el disco
+        slot = loadPage(pageNum); //desde el disco
 
-        // ** volver a buscar el slot donde se cargo
-        for(size_t i = 0; i < pageCount; i++ ){
-            if (loadedPages[i] == (int)pageNum){
-                slot = i;
-                break;
-            }
-        }
+
     }
 
     LRUcounter++;
@@ -139,7 +143,7 @@ size_t PagedArray::getSize() const
 
 
 //Metodo que carga una página desde el archivo (disco) a RAM
-void PagedArray::loadPage(size_t PageNum){
+int PagedArray::loadPage(size_t PageNum){
 
     int slot = -1;
 
@@ -164,20 +168,21 @@ void PagedArray::loadPage(size_t PageNum){
 
     //Leer la página desde el disco hacia RAM
     file.read((char*)pages[slot], intsPerPage * sizeof(int));
+
+    if (!file) {
+        throw std::runtime_error("Error leyendo archivo");
+    }
         
     dirtyPage[slot] = false;
 
     //Esto es como para decir "Slot 2 ahora tiene la pagina 3"
     loadedPages[slot] = (int)PageNum;
+
+    return slot;
 }
 
 //Metodo que guarda una pagina de memoria al archivo (disco)
 void PagedArray::savePage(size_t PageNum){
-
-    //Si no hay página
-    if ((int)PageNum == -1){
-        return;
-    }
 
     int slot = -1;
 
@@ -205,6 +210,9 @@ void PagedArray::savePage(size_t PageNum){
 
     //Escribir de ram al archivo o disco
     file.write((char*)pages[slot], intsPerPage * sizeof(int));
+    if (!file) {
+        throw std::runtime_error("Error escribiendo archivo");
+    }
     dirtyPage[slot] = false;
 }
 
