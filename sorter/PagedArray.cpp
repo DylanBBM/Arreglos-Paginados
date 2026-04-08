@@ -167,9 +167,16 @@ int PagedArray::loadPage(size_t PageNum){
     file.seekg(startingByte, std::ios::beg);
 
     //Leer la página desde el disco hacia RAM
-    file.read((char*)pages[slot], intsPerPage * sizeof(int));
+    size_t remainingInts = intAmount - (PageNum * intsPerPage);
+    size_t intsToRead = std::min(intsPerPage, remainingInts);
+    file.read((char*)pages[slot], intsToRead * sizeof(int));
 
-    if (!file) {
+    //Si se esta leyendo mas alla del final del archivo
+    if (file.eof()) {
+        //Deja el stream limpio, solo limpia el estado interno
+        file.clear();
+    }
+    else if (!file) {
         throw std::runtime_error("Error leyendo archivo");
     }
         
@@ -209,7 +216,10 @@ void PagedArray::savePage(size_t PageNum){
     file.seekp(StartingByte, std::ios::beg);
 
     //Escribir de ram al archivo o disco
-    file.write((char*)pages[slot], intsPerPage * sizeof(int));
+    size_t remainingInts = intAmount - (PageNum * intsPerPage);
+    size_t intsToWrite = std::min(intsPerPage, remainingInts);
+
+    file.write((char*)pages[slot], intsToWrite * sizeof(int));
     if (!file) {
         throw std::runtime_error("Error escribiendo archivo");
     }

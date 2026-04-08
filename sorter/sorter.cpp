@@ -78,9 +78,9 @@ void parseArgs(int argc, char* argv[], Config& config) {
 //Metodo que verifica ciertos parametros de la configuracion del sorter
 void validateConfig(const Config& config) {
 
-    if (config.pageSize % 2 != 0){
+    /*if (config.pageSize % 2 != 0){
         throw std::invalid_argument("Error: El pageSize debe ser multiplo de 2");
-    }
+    }*/
 
     if (config.pageSize == 0) {
         throw std::invalid_argument("Error: pageSize no puede ser 0");
