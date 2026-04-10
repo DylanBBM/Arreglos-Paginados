@@ -1,9 +1,8 @@
 #include <string>
 #include <cstddef>  //para usar size_t para tamanios es un entero sin signo
 #include <iostream> //Imprimir
-#include <fstream> //Leer y escribir archivos
+#include <fstream>  //Leer y escribir archivos
 #include "PagedArray.h"
-
 
 //Clase que utiliza un arreglo dividido em paginas en memoria
 PagedArray::PagedArray(const std::string& filePath, size_t pageSize, size_t pageCount){
@@ -168,7 +167,13 @@ int PagedArray::loadPage(size_t PageNum){
 
     //Leer la página desde el disco hacia RAM
     size_t remainingInts = intAmount - (PageNum * intsPerPage);
-    size_t intsToRead = std::min(intsPerPage, remainingInts);
+    size_t intsToRead;
+
+    if (intsPerPage < remainingInts) {
+        intsToRead = intsPerPage;
+    } else {
+        intsToRead = remainingInts;
+    }
     file.read((char*)pages[slot], intsToRead * sizeof(int));
 
     //Si se esta leyendo mas alla del final del archivo
@@ -217,7 +222,14 @@ void PagedArray::savePage(size_t PageNum){
 
     //Escribir de ram al archivo o disco
     size_t remainingInts = intAmount - (PageNum * intsPerPage);
-    size_t intsToWrite = std::min(intsPerPage, remainingInts);
+
+    size_t intsToWrite;
+    //Si faltan
+    if (intsPerPage < remainingInts) {
+        intsToWrite = intsPerPage;
+    } else {
+        intsToWrite = remainingInts;
+    }
 
     file.write((char*)pages[slot], intsToWrite * sizeof(int));
     if (!file) {

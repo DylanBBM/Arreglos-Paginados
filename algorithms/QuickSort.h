@@ -4,7 +4,7 @@
 
 #include "../sorter/PagedArray.h"
 
-int partition(PagedArray &arr, int low, int high);
-void quickSort(PagedArray &arr, int low, int high);
+int partition(PagedArray& arr, int low, int high);
+void quickSort(PagedArray& arr, int low, int high);
 
 #endif

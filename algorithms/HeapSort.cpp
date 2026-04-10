@@ -1,47 +1,46 @@
-// C++ program for implementation of Heap Sort
 #include <iostream>
-#include <algorithm>
 #include "HeapSort.h"
 using namespace std;
 
-// To heapify a subtree rooted with node i which is
-// an index in arr[]. n is size of heap
-void heapify(PagedArray& arr, int n, int i)
+// Reorganiza el subárbol para mantener la propiedad de max-heap
+void heapify(PagedArray& arr, int size, int rootIndex)
 {
-    int largest = i; // Initialize largest as root Since we are using 0 based indexing
-    int l = 2 * i + 1; // left = 2*i + 1
-    int r = 2 * i + 2; // right = 2*i + 2
+    int largest = rootIndex;
+    int leftChild = 2 * rootIndex + 1;
+    int rightChild = 2 * rootIndex + 2;
 
-    // If left child is larger than root
-    if (l < n && arr[l] > arr[largest])
-        largest = l;
+    // Verifica si el hijo izquierdo es mayor que la raíz
+    if (leftChild < size && arr[leftChild] > arr[largest])
+        largest = leftChild;
 
-    // If right child is larger than largest so far
-    if (r < n && arr[r] > arr[largest])
-        largest = r;
+    // Verifica si el hijo derecho es mayor que el mayor actual
+    if (rightChild < size && arr[rightChild] > arr[largest])
+        largest = rightChild;
 
-    // If largest is not root
-    if (largest != i) {
-        swap(arr[i], arr[largest]);
+    // Si el mayor no es la raíz, intercambia y sigue reorganizando recursivamente
+    if (largest != rootIndex) {
+        int temp = arr[rootIndex];
+        arr[rootIndex] = arr[largest];
+        arr[largest] = temp;
 
-        // Recursively heapify the affected sub-tree
-        heapify(arr, n, largest);
+        heapify(arr, size, largest);
     }
 }
 
-// main function to do heap sort
-void heapSort(PagedArray& arr, int n)
+void heapSort(PagedArray& arr, int size)
 {
-    // Build heap (rearrange array)
-    for (int i = n / 2 - 1; i >= 0; i--)
-        heapify(arr, n, i);
+    // Construye el max-heap reorganizando desde el último nodo interno hasta la raíz
+    for (int rootIndex = size / 2 - 1; rootIndex >= 0; rootIndex--)
+        heapify(arr, size, rootIndex);
 
-    // One by one extract an element from heap
-    for (int i = n - 1; i >= 0; i--) {
-        // Move current root to end
-        swap(arr[0], arr[i]);
+    // Extrae uno por uno los elementos del heap
+    for (int last = size - 1; last >= 0; last--) {
+        // Mueve la raíz (mayor elemento) al final del arreglo
+        int temp = arr[0];
+        arr[0] = arr[last];
+        arr[last] = temp;
 
-        // call max heapify on the reduced heap
-        heapify(arr, i, 0);
+        // Reorganiza el heap reducido
+        heapify(arr, last, 0);
     }
 }

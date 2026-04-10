@@ -12,13 +12,13 @@ long long getLimit(const std::string& size) {
     // Por el limite de los ints
     long long limit = 0;
     if(size == "small") {  
-        limit = 256LL * 1024 * 1024 / 4; 
+        limit = 32LL * 1024 * 1024 / 4; 
     } 
     else if(size == "medium") {
-        limit = 512LL * 1024 * 1024 / 4; 
+        limit = 64LL * 1024 * 1024 / 4; 
     } 
     else if(size == "large") {
-        limit = 1024LL * 1024 * 1024 / 4; 
+        limit = 128LL * 1024 * 1024 / 4; 
     }
 
     // Limite de enteros del archivo

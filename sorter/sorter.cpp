@@ -8,16 +8,16 @@
 #include "../algorithms/QuickSort.h"
 #include "../algorithms/MergeSort.h"
 #include "../algorithms/HeapSort.h"
-#include "../algorithms/ShellSort.h"
-#include "../algorithms/SelectionSort.h"
+#include "../algorithms/RadixSort.h"
+#include "../algorithms/CombSort.h"
 
 //"Configuracion" del sorter
 struct Config {
     std::string inputFile;//El que toma con todo y ruta
     std::string outputFile;//El copiado que ordena con todo y ruta
     std::string algorithm; //El algoritmo seleccionado
-    size_t pageSize = 0; //Cantidad de enteros que caben en una pagina
-    size_t pageCount = 0; //Cantidad de paginas en memoria
+    size_t pageSize = 0;   //Cantidad de enteros que caben en una pagina
+    size_t pageCount = 0;  //Cantidad de paginas en memoria
 };
 
 //Metodo que verifica si la cantidad de argumentos es la correcta
@@ -128,10 +128,8 @@ void runSortAlgorithm(const Config& config, PagedArray& arr) {
         return;
     }
 
-    //Limites de algunos algoritmos, por que duran mucho.
-    size_t heapLimit      = (64LL  * 1024 * 1024) / sizeof(int); //64MB
-    size_t selectionLimit = (1LL   * 1024 * 1024) / sizeof(int); //32MB
-    size_t shellLimit     = (32LL  * 1024 * 1024) / sizeof(int); //1MB
+    //Limites para , por que dura mucho.
+    size_t heapLimit = (32LL  * 1024 * 1024) / sizeof(int); //32MB
 
     //Quicksort
     if (config.algorithm == "quick") {
@@ -143,13 +141,10 @@ void runSortAlgorithm(const Config& config, PagedArray& arr) {
         mergeSort(arr, 0, arr.getSize() - 1);
     }
 
-    //Selection Sort
-    else if (config.algorithm == "selection") {
+    //CombSort
+    else if (config.algorithm == "comb") {
 
-        if (arr.getSize() > selectionLimit){ 
-            throw std::invalid_argument("SelectionSort no esta permitido para archivos de mas de 1MB");
-        }
-        selectionSort(arr);
+        combSort(arr, (int)arr.getSize());
     }
 
     //Heap Sort
@@ -161,12 +156,9 @@ void runSortAlgorithm(const Config& config, PagedArray& arr) {
         heapSort(arr, (int)arr.getSize());
     }
 
-    //Shell Sort
-    else if (config.algorithm == "shell") {
-        if (arr.getSize() > shellLimit){
-            throw std::invalid_argument("ShellSort no esta permitido para archivos mayores a 64MB");
-        }    
-        shellSort(arr, (int)arr.getSize());
+    //Radix Sort
+    else if (config.algorithm == "radix") {
+        radixSort(arr);
     }
     //Alguno no valido
     else {

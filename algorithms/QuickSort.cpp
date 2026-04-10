@@ -1,25 +1,32 @@
-
 #include "QuickSort.h"
-#include <algorithm> 
 
-int partition(PagedArray &arr, int low, int high) {
+// Ubica el pivote en su posición correcta, menores a la izquierda y mayores a la derecha
+int partition(PagedArray& arr, int low, int high) {
     int pivot = arr[high];
-    int i = low - 1;
+    int smallerIndex = low - 1;
 
-    for (int j = low; j <= high - 1; j++) {
-        if (arr[j] <= pivot) {
-            i++;
-            std::swap(arr[i], arr[j]);
+    for (int current = low; current <= high - 1; current++) {
+        // Si el elemento actual es menor o igual al pivote se mueve a la izquierda
+        if (arr[current] <= pivot) {
+            smallerIndex++;
+            int temp = arr[smallerIndex];
+            arr[smallerIndex] = arr[current];
+            arr[current] = temp;
         }
     }
-    std::swap(arr[i + 1], arr[high]);
-    return i + 1;
+    // Coloca el pivote en su posición final
+    int temp = arr[smallerIndex + 1];
+    arr[smallerIndex + 1] = arr[high];
+    arr[high] = temp;
+
+    return smallerIndex + 1;
 }
 
-void quickSort(PagedArray &arr, int low, int high) {
+void quickSort(PagedArray& arr, int low, int high) {
     if (low < high) {
-        int pi = partition(arr, low, high);
-        if(pi > 0) quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);          
+        // Obtiene el índice del pivote ya ubicado correctamente
+        int pivotIndex = partition(arr, low, high);
+        if(pivotIndex > 0) quickSort(arr, low, pivotIndex - 1);
+        quickSort(arr, pivotIndex + 1, high);
     }
 }

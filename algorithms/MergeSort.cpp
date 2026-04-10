@@ -3,63 +3,63 @@
 using namespace std;
 
 void merge(PagedArray& arr, int left, int mid, int right){
-    int n1 = mid - left + 1;
-    int n2 = right - mid;
+    int leftSize = mid - left + 1;
+    int rightSize = right - mid;
 
-    int* L = new int[n1];
-    int* R = new int[n2];
+    // Subarreglos temporales para almacenar las mitades
+    int* leftArray = new int[leftSize];
+    int* rightArray = new int[rightSize];
 
-    // Copy data to temp vectors L[] and R[]
-    for (int i = 0; i < n1; i++)
-        L[i] = arr[left + i];
-    for (int j = 0; j < n2; j++)
-        R[j] = arr[mid + 1 + j];
+    // Copia los datos a los subarreglos temporales
+    for (int leftIndex = 0; leftIndex < leftSize; leftIndex++)
+        leftArray[leftIndex] = arr[left + leftIndex];
+    for (int rightIndex = 0; rightIndex < rightSize; rightIndex++)
+        rightArray[rightIndex] = arr[mid + 1 + rightIndex];
 
-    int i = 0, j = 0;
-    int k = left;
+    int leftIndex = 0, rightIndex = 0;
+    int mergeIndex = left;
 
-    // Merge the temp vectors back 
-    // into arr[left..right]
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
-            i++;
+    // Mezcla los subarreglos comparando elemento por elemento
+    while (leftIndex < leftSize && rightIndex < rightSize) {
+        if (leftArray[leftIndex] <= rightArray[rightIndex]) {
+            arr[mergeIndex] = leftArray[leftIndex];
+            leftIndex++;
         }
         else {
-            arr[k] = R[j];
-            j++;
+            arr[mergeIndex] = rightArray[rightIndex];
+            rightIndex++;
         }
-        k++;
+        mergeIndex++;
     }
 
-    // Copy the remaining elements of L[], 
-    // if there are any
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
+    // Copia los elementos restantes del subarreglo izquierdo
+    while (leftIndex < leftSize) {
+        arr[mergeIndex] = leftArray[leftIndex];
+        leftIndex++;
+        mergeIndex++;
     }
 
-    // Copy the remaining elements of R[], 
-    // if there are any
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
+    // Copia los elementos restantes del subarreglo derecho
+    while (rightIndex < rightSize) {
+        arr[mergeIndex] = rightArray[rightIndex];
+        rightIndex++;
+        mergeIndex++;
     }
-    delete[] L;
-    delete[] R;
+
+    delete[] leftArray;
+    delete[] rightArray;
 }
 
-// begin is for left index and end is right index
-// of the sub-array of arr to be sorted
+// left es el índice izquierdo y right el índice derecho del subarreglo a ordenar
 void mergeSort(PagedArray& arr, int left, int right){
-    
+
     if (left >= right)
         return;
 
+    // Calcula el punto medio evitando desbordamiento
     int mid = left + (right - left) / 2;
     mergeSort(arr, left, mid);
     mergeSort(arr, mid + 1, right);
+    // Combina las dos mitades ordenadas
     merge(arr, left, mid, right);
 }

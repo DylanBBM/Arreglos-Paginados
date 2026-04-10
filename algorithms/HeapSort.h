@@ -3,8 +3,7 @@
 
 #include "../sorter/PagedArray.h"
 
-void heapify(PagedArray &arr, int n, int i);
-void heapSort(PagedArray &arr, int n);
-
+void heapify(PagedArray& arr, int size, int rootIndex);
+void heapSort(PagedArray& arr, int size);
 
 #endif
